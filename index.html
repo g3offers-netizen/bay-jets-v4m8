@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Bay Area Private Jet Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e; 
+            color: #eee; 
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 { 
+            color: #00d4aa; 
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .subtitle { color: #888; margin-bottom: 5px; }
+        .last-update { color: #666; font-size: 12px; }
+        .status { 
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .status.live { background: #00d4aa33; color: #00d4aa; }
+        .status.error { background: #ff6b6b33; color: #ff6b6b; }
+        .status.loading { background: #ffe66d33; color: #ffe66d; }
+        
+        .airports {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .airport-badge {
+            background: #16213e;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .airport-badge .code { color: #00d4aa; font-weight: bold; }
+        .airport-badge .count { color: #ffe66d; margin-left: 8px; }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #16213e;
+            color: #00d4aa;
+            border: 1px solid #00d4aa;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        button:hover { background: #00d4aa; color: #1a1a2e; }
+        button.active { background: #00d4aa; color: #1a1a2e; }
+        
+        .jets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .jet-card {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .jet-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            border-color: #00d4aa44;
+        }
+        .jet-card.ladd { border-left: 4px solid #ff6b6b; }
+        
+        .jet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .tail-number {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #00d4aa;
+        }
+        .aircraft-type {
+            background: #00d4aa22;
+            color: #00d4aa;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .jet-owner {
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .jet-owner.unknown { color: #666; font-style: italic; }
+        
+        .jet-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        
+        .jet-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+        .badge.ladd { background: #ff6b6b33; color: #ff6b6b; }
+        .badge.ground { background: #ffe66d33; color: #ffe66d; }
+        .badge.climbing { background: #4ecdc433; color: #4ecdc4; }
+        .badge.descending { background: #f3818133; color: #f38181; }
+        .badge.airport { background: #aa96da33; color: #aa96da; }
+        
+        .jet-links {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #333;
+        }
+        .jet-links a {
+            color: #00d4aa;
+            text-decoration: none;
+            font-size: 12px;
+            padding: 5px 10px;
+            background: #00d4aa15;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .jet-links a:hover { background: #00d4aa33; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        .empty-state h3 { color: #888; margin-bottom: 10px; }
+        
+        .cors-warning {
+            background: #ffe66d22;
+            border: 1px solid #ffe66d44;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 800px;
+        }
+        .cors-warning h3 { color: #ffe66d; margin-bottom: 10px; }
+        .cors-warning p { color: #ccc; margin-bottom: 10px; line-height: 1.6; }
+        .cors-warning code {
+            background: #1a1a2e;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .cors-warning ul { margin-left: 20px; color: #aaa; }
+        .cors-warning li { margin: 5px 0; }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: #16213e;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal h2 { color: #00d4aa; margin-bottom: 20px; }
+        .modal-close {
+            float: right;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .modal-close:hover { color: #fff; }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #333;
+        }
+        .detail-row:last-child { border: none; }
+        .detail-label { color: #888; }
+        .detail-value { color: #fff; font-weight: 500; }
+        
+        /* Map embed */
+        .map-embed {
+            margin-top: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .map-embed iframe {
+            width: 100%;
+            height: 200px;
+            border: none;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+            color: #666;
+            font-size: 12px;
+        }
+        footer a { color: #00d4aa; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>✈️ Bay Area Private Jet Tracker</h1>
+        <p class="subtitle">Monitoring SFO • SJC • OAK</p>
+        <p class="last-update">
+            Last updated: <span id="lastUpdate">--</span>
+            <span id="status" class="status loading">Loading...</span>
+        </p>
+    </header>
+    
+    <div class="airports">
+        <div class="airport-badge">
+            <span class="code">SFO</span>
+            <span class="count" id="sfo-count">0</span>
+        </div>
+        <div class="airport-badge">
+            <span class="code">SJC</span>
+            <span class="count" id="sjc-count">0</span>
+        </div>
+        <div class="airport-badge">
+            <span class="code">OAK</span>
+            <span class="count" id="oak-count">0</span>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button id="btn-all" class="active" onclick="setFilter('all')">All Jets</button>
+        <button id="btn-gulfstream" onclick="setFilter('gulfstream')">Gulfstream</button>
+        <button id="btn-global" onclick="setFilter('global')">Global/Challenger</button>
+        <button id="btn-falcon" onclick="setFilter('falcon')">Falcon</button>
+        <button id="btn-citation" onclick="setFilter('citation')">Citation</button>
+        <button id="btn-refresh" onclick="refresh()">🔄 Refresh</button>
+    </div>
+    
+    <div id="corsWarning" class="cors-warning" style="display: none;">
+        <h3>⚠️ CORS Restriction Detected</h3>
+        <p>ADS-B Exchange blocks direct browser requests. Choose a workaround:</p>
+        <ul>
+            <li><strong>Chrome Extension:</strong> Install <a href="https://chrome.google.com/webstore/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf" target="_blank">Allow CORS</a> and enable it</li>
+            <li><strong>Local Proxy:</strong> Run <code>npx local-cors-proxy --proxyUrl https://globe.adsbexchange.com</code></li>
+            <li><strong>Use Demo Mode:</strong> <button onclick="enableDemoMode()">Load Demo Data</button></li>
+        </ul>
+    </div>
+    
+    <div id="jetsContainer" class="jets-grid"></div>
+    
+    <div id="emptyState" class="empty-state" style="display: none;">
+        <h3>No private jets currently tracked</h3>
+        <p>Waiting for aircraft matching filter criteria in the Bay Area...</p>
+    </div>
+    
+    <div id="modal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Data from <a href="https://globe.adsbexchange.com" target="_blank">ADS-B Exchange</a> • 
+           Updates every 30 seconds • 
+           <a href="https://github.com/g3offers-netizen/bay-jets" target="_blank">GitHub</a></p>
+    </footer>
+    
+    <script>
+        // Configuration
+        const AIRPORTS = {
+            SFO: { lat: 37.62, lon: -122.38, radius: 30 },
+            SJC: { lat: 37.36, lon: -121.93, radius: 25 },
+            OAK: { lat: 37.72, lon: -122.22, radius: 25 }
+        };
+        
+        // Private jet type codes
+        const PRIVATE_JET_TYPES = {
+            gulfstream: ['GLF4', 'GLF5', 'GLF6', 'G280', 'GALX', 'G150', 'G200', 'G350', 'G450', 'G550', 'G650'],
+            global: ['GLEX', 'GL5T', 'GL7T', 'CL30', 'CL35', 'CL60', 'CL65', 'BD700'],
+            falcon: ['F900', 'F2TH', 'FA7X', 'FA8X', 'F50', 'F10', 'FA50', 'FA10'],
+            citation: ['C25A', 'C25B', 'C25C', 'C25M', 'C500', 'C510', 'C525', 'C550', 'C560', 'C56X', 'C680', 'C68A', 'C750'],
+            embraer: ['E35L', 'E50P', 'E545', 'E550', 'E55P', 'LJ35', 'LJ40', 'LJ45', 'LJ60', 'LJ70', 'LJ75']
+        };
+        
+        const ALL_JET_TYPES = Object.values(PRIVATE_JET_TYPES).flat();
+        
+        let currentFilter = 'all';
+        let trackedJets = [];
+        let refreshInterval = null;
+        let isDemoMode = false;
+        
+        // ADS-B Exchange API endpoints
+        const ADSB_BASE = 'https://globe.adsbexchange.com';
+        
+        // Calculate distance between two points (haversine formula)
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 3959; // Earth radius in miles
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+        
+        // Find nearest airport
+        function getNearestAirport(lat, lon) {
+            let nearest = null;
+            let minDist = Infinity;
+            for (const [code, airport] of Object.entries(AIRPORTS)) {
+                const dist = getDistance(lat, lon, airport.lat, airport.lon);
+                if (dist < minDist && dist < airport.radius) {
+                    minDist = dist;
+                    nearest = code;
+                }
+            }
+            return nearest;
+        }
+        
+        // Get heading direction
+        function getHeadingDir(heading) {
+            if (heading === null || heading === undefined) return 'N/A';
+            const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+            return dirs[Math.round(heading / 45) % 8];
+        }
+        
+        // Fetch data from ADS-B Exchange
+        async function fetchJets() {
+            if (isDemoMode) return getDemoData();
+            
+            try {
+                // ADS-B Exchange uses tile-based data - we'll fetch the Bay Area tiles
+                // Tile format: https://globe.adsbexchange.com/data/aircraft.json
+                // For specific area, they use lat/lon bounding
+                
+                const response = await fetch(`${ADSB_BASE}/data/aircraft.json`, {
+                    mode: 'cors',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const data = await response.json();
+                return processAircraftData(data);
+                
+            } catch (error) {
+                console.error('Fetch error:', error);
+                
+                // Try alternative endpoint
+                try {
+                    // Tile-based approach for Bay Area (roughly lat 37, lon -122)
+                    const tileUrl = `${ADSB_BASE}/data/globe_3777.json`;
+                    const response = await fetch(tileUrl, { mode: 'cors' });
+                    if (response.ok) {
+                        const data = await response.json();
+                        return processAircraftData(data);
+                    }
+                } catch (e) {
+                    console.error('Alternative fetch failed:', e);
+                }
+                
+                throw error;
+            }
+        }
+        
+        // Process aircraft data from ADS-B Exchange
+        function processAircraftData(data) {
+            const jets = [];
+            const aircraft = data.aircraft || data.ac || [];
+            
+            for (const ac of aircraft) {
+                // ADS-B Exchange format varies, handle different field names
+                const type = ac.t || ac.type || '';
+                const lat = ac.lat ?? ac.latitude;
+                const lon = ac.lon ?? ac.longitude;
+                
+                // Check if it's a private jet type
+                if (!ALL_JET_TYPES.some(t => type.toUpperCase().includes(t))) continue;
+                
+                // Check if in Bay Area
+                if (lat === undefined || lon === undefined) continue;
+                const nearestAirport = getNearestAirport(lat, lon);
+                if (!nearestAirport) continue;
+                
+                // Determine jet category
+                let category = 'other';
+                for (const [cat, types] of Object.entries(PRIVATE_JET_TYPES)) {
+                    if (types.some(t => type.toUpperCase().includes(t))) {
+                        category = cat;
+                        break;
+                    }
+                }
+                
+                jets.push({
+                    hex: ac.hex || ac.icao || '',
+                    tail: ac.r || ac.registration || ac.flight?.trim() || 'Unknown',
+                    type: type.toUpperCase(),
+                    category: category,
+                    owner: ac.ownOp || ac.operator || ac.desc || null,
+                    lat: lat,
+                    lon: lon,
+                    altitude: ac.alt_baro ?? ac.altitude ?? ac.alt_geom ?? 0,
+                    speed: ac.gs ?? ac.ground_speed ?? 0,
+                    heading: ac.track ?? ac.heading ?? ac.true_heading,
+                    vertRate: ac.baro_rate ?? ac.vert_rate ?? 0,
+                    squawk: ac.squawk || '',
+                    airport: nearestAirport,
+                    isLadd: ac.ladd || false,
+                    lastSeen: ac.seen ?? 0,
+                    flight: (ac.flight || '').trim()
+                });
+            }
+            
+            return jets;
+        }
+        
+        // Demo mode data
+        function getDemoData() {
+            return [
+                { hex: 'a12345', tail: 'N1234G', type: 'GLF6', category: 'gulfstream', owner: 'Google LLC', lat: 37.615, lon: -122.39, altitude: 2500, speed: 180, heading: 280, vertRate: 1500, airport: 'SFO', isLadd: false },
+                { hex: 'a23456', tail: 'N5678X', type: 'GLEX', category: 'global', owner: 'Apple Inc', lat: 37.37, lon: -121.94, altitude: 0, speed: 0, heading: 120, vertRate: 0, airport: 'SJC', isLadd: false },
+                { hex: 'a34567', tail: 'N9012L', type: 'FA8X', category: 'falcon', owner: 'Private Owner', lat: 37.73, lon: -122.21, altitude: 8500, speed: 320, heading: 45, vertRate: -800, airport: 'OAK', isLadd: true },
+                { hex: 'a45678', tail: 'N3456C', type: 'C680', category: 'citation', owner: 'NetJets Aviation', lat: 37.61, lon: -122.37, altitude: 1200, speed: 140, heading: 290, vertRate: 2200, airport: 'SFO', isLadd: false },
+                { hex: 'a56789', tail: 'N7890E', type: 'E55P', category: 'embraer', owner: null, lat: 37.35, lon: -121.92, altitude: 4500, speed: 250, heading: 180, vertRate: 0, airport: 'SJC', isLadd: true },
+                { hex: 'a67890', tail: 'N2468G', type: 'GLF5', category: 'gulfstream', owner: 'Meta Platforms Inc', lat: 37.625, lon: -122.385, altitude: 0, speed: 15, heading: 280, vertRate: 0, airport: 'SFO', isLadd: false },
+            ];
+        }
+        
+        // Enable demo mode
+        function enableDemoMode() {
+            isDemoMode = true;
+            document.getElementById('corsWarning').style.display = 'none';
+            refresh();
+        }
+        
+        // Render jets
+        function renderJets() {
+            const container = document.getElementById('jetsContainer');
+            const emptyState = document.getElementById('emptyState');
+            
+            let filteredJets = trackedJets;
+            if (currentFilter !== 'all') {
+                filteredJets = trackedJets.filter(j => j.category === currentFilter);
+            }
+            
+            // Update airport counts
+            for (const airport of Object.keys(AIRPORTS)) {
+                const count = trackedJets.filter(j => j.airport === airport).length;
+                document.getElementById(`${airport.toLowerCase()}-count`).textContent = count;
+            }
+            
+            if (filteredJets.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            // Sort by altitude descending (airborne first)
+            filteredJets.sort((a, b) => b.altitude - a.altitude);
+            
+            container.innerHTML = filteredJets.map(jet => `
+                <div class="jet-card ${jet.isLadd ? 'ladd' : ''}" onclick="showDetails('${jet.hex}')">
+                    <div class="jet-header">
+                        <span class="tail-number">${jet.tail}</span>
+                        <span class="aircraft-type">${jet.type}</span>
+                    </div>
+                    <div class="jet-owner ${jet.owner ? '' : 'unknown'}">
+                        ${jet.owner || 'Owner unknown'}
+                    </div>
+                    <div class="jet-stats">
+                        <div class="stat">
+                            <div class="stat-value">${jet.altitude > 0 ? jet.altitude.toLocaleString() : 'GND'}</div>
+                            <div class="stat-label">Alt (ft)</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">${Math.round(jet.speed)}</div>
+                            <div class="stat-label">Speed (kts)</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">${getHeadingDir(jet.heading)}</div>
+                            <div class="stat-label">Heading</div>
+                        </div>
+                    </div>
+                    <div class="jet-badges">
+                        ${jet.isLadd ? '<span class="badge ladd">LADD</span>' : ''}
+                        ${jet.altitude === 0 ? '<span class="badge ground">Ground</span>' : ''}
+                        ${jet.vertRate > 500 ? '<span class="badge climbing">Climbing</span>' : ''}
+                        ${jet.vertRate < -500 ? '<span class="badge descending">Descending</span>' : ''}
+                        <span class="badge airport">${jet.airport}</span>
+                    </div>
+                    <div class="jet-links">
+                        <a href="https://www.planespotters.net/search?q=${jet.tail}" target="_blank" onclick="event.stopPropagation()">📸 Planespotters</a>
+                        <a href="https://registry.faa.gov/AircraftInquiry/Search/NNumberResult?nNumberTxt=${jet.tail.replace('N', '')}" target="_blank" onclick="event.stopPropagation()">📋 FAA Registry</a>
+                        <a href="https://globe.adsbexchange.com/?icao=${jet.hex}" target="_blank" onclick="event.stopPropagation()">🗺️ Track</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Show aircraft details modal
+        function showDetails(hex) {
+            const jet = trackedJets.find(j => j.hex === hex);
+            if (!jet) return;
+            
+            const modal = document.getElementById('modal');
+            const content = document.getElementById('modalContent');
+            
+            content.innerHTML = `
+                <h2>✈️ ${jet.tail}</h2>
+                <div class="detail-row">
+                    <span class="detail-label">Aircraft Type</span>
+                    <span class="detail-value">${jet.type}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Registered Owner</span>
+                    <span class="detail-value">${jet.owner || 'Unknown'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">ICAO Hex</span>
+                    <span class="detail-value">${jet.hex.toUpperCase()}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Nearest Airport</span>
+                    <span class="detail-value">${jet.airport}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Altitude</span>
+                    <span class="detail-value">${jet.altitude > 0 ? jet.altitude.toLocaleString() + ' ft' : 'On Ground'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Ground Speed</span>
+                    <span class="detail-value">${Math.round(jet.speed)} kts</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Heading</span>
+                    <span class="detail-value">${jet.heading !== null ? Math.round(jet.heading) + '° (' + getHeadingDir(jet.heading) + ')' : 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Vertical Rate</span>
+                    <span class="detail-value">${jet.vertRate > 0 ? '+' : ''}${jet.vertRate} ft/min</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Squawk</span>
+                    <span class="detail-value">${jet.squawk || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">LADD Status</span>
+                    <span class="detail-value">${jet.isLadd ? '⚠️ LADD Listed' : '✅ Not LADD'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Position</span>
+                    <span class="detail-value">${jet.lat.toFixed(4)}, ${jet.lon.toFixed(4)}</span>
+                </div>
+                
+                <div class="map-embed">
+                    <iframe src="https://globe.adsbexchange.com/?icao=${jet.hex}&zoom=10&hideSidebar&hideButtons" 
+                            loading="lazy" referrerpolicy="no-referrer"></iframe>
+                </div>
+                
+                <div class="jet-links" style="margin-top: 20px; justify-content: center;">
+                    <a href="https://www.planespotters.net/search?q=${jet.tail}" target="_blank">📸 Planespotters</a>
+                    <a href="https://registry.faa.gov/AircraftInquiry/Search/NNumberResult?nNumberTxt=${jet.tail.replace('N', '')}" target="_blank">📋 FAA Registry</a>
+                    <a href="https://globe.adsbexchange.com/?icao=${jet.hex}" target="_blank">🗺️ Full Track</a>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+        }
+        
+        // Close modal
+        function closeModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('modal').classList.remove('active');
+        }
+        
+        // Set filter
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.controls button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`btn-${filter}`).classList.add('active');
+            renderJets();
+        }
+        
+        // Refresh data
+        async function refresh() {
+            const status = document.getElementById('status');
+            status.className = 'status loading';
+            status.textContent = 'Updating...';
+            
+            try {
+                trackedJets = await fetchJets();
+                renderJets();
+                
+                const now = new Date();
+                document.getElementById('lastUpdate').textContent = now.toLocaleTimeString();
+                status.className = 'status live';
+                status.textContent = isDemoMode ? 'Demo Mode' : `Live (${trackedJets.length} jets)`;
+                
+                document.getElementById('corsWarning').style.display = 'none';
+                
+            } catch (error) {
+                console.error('Refresh error:', error);
+                status.className = 'status error';
+                status.textContent = 'CORS Error';
+                document.getElementById('corsWarning').style.display = 'block';
+            }
+        }
+        
+        // Initialize
+        async function init() {
+            await refresh();
+            
+            // Auto-refresh every 30 seconds
+            refreshInterval = setInterval(refresh, 30000);
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeModal();
+                if (e.key === 'r' && !e.ctrlKey && !e.metaKey) refresh();
+            });
+        }
+        
+        init();
+    </script>
+</body>
+</html>
