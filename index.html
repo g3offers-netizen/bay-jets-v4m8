@@ -666,8 +666,11 @@
                         <div style="color: #ffe66d; font-size: 13px; line-height: 1.5;">${ownerInfo.likelyPassenger}</div>
                     </div>
                     ` : ''}
+                    ${ownerInfo.serialNumber ? `<div class="detail-row"><span class="detail-label">Serial Number</span><span class="detail-value">${ownerInfo.serialNumber}</span></div>` : ''}
+                    ${ownerInfo.deliveryDate ? `<div class="detail-row"><span class="detail-label">Delivered</span><span class="detail-value">${ownerInfo.deliveryDate}</span></div>` : ''}
+                    ${ownerInfo.previousReg ? `<div class="detail-row"><span class="detail-label">Previous Reg</span><span class="detail-value">${ownerInfo.previousReg}</span></div>` : ''}
                     ${ownerInfo.notes ? `<div style="color: #888; font-size: 12px; margin-top: 10px; font-style: italic;">📝 ${ownerInfo.notes}</div>` : ''}
-                    <div style="color: #666; font-size: 11px; margin-top: 8px;">Source: ${ownerInfo.sources ? ownerInfo.sources.join(', ') : 'FAA Registry'}</div>
+                    <div style="color: #666; font-size: 11px; margin-top: 8px;">Source: ${ownerInfo.sources ? ownerInfo.sources.join(', ') : 'FAA Registry'}${ownerInfo.planespottersVerified ? ' • ✓ Planespotters verified' : ''}</div>
                 </div>
                 `;
             }
