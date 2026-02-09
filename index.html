@@ -303,13 +303,9 @@
     </div>
     
     <div id="corsWarning" class="cors-warning" style="display: none;">
-        <h3>⚠️ CORS Restriction Detected</h3>
-        <p>ADS-B Exchange blocks direct browser requests. Choose a workaround:</p>
-        <ul>
-            <li><strong>Chrome Extension:</strong> Install <a href="https://chrome.google.com/webstore/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf" target="_blank">Allow CORS</a> and enable it</li>
-            <li><strong>Local Proxy:</strong> Run <code>npx local-cors-proxy --proxyUrl https://globe.adsbexchange.com</code></li>
-            <li><strong>Use Demo Mode:</strong> <button onclick="enableDemoMode()">Load Demo Data</button></li>
-        </ul>
+        <h3>⚠️ Connection Error</h3>
+        <p>Unable to fetch aircraft data. Check your internet connection and try refreshing.</p>
+        <button onclick="location.reload()">🔄 Refresh Page</button>
     </div>
     
     <div id="jetsContainer" class="jets-grid"></div>
@@ -327,7 +323,7 @@
     </div>
     
     <footer>
-        <p>Data from <a href="https://globe.adsbexchange.com" target="_blank">ADS-B Exchange</a> • 
+        <p>Data from <a href="https://adsb.lol" target="_blank">adsb.lol</a> • 
            Updates every 30 seconds • 
            <a href="https://github.com/g3offers-netizen/bay-jets" target="_blank">GitHub</a></p>
     </footer>
@@ -356,8 +352,8 @@
         let refreshInterval = null;
         let isDemoMode = false;
         
-        // ADS-B Exchange API endpoints
-        const ADSB_BASE = 'https://globe.adsbexchange.com';
+        // adsb.lol API (free, no CORS issues, no API key needed)
+        const ADSB_API = 'https://api.adsb.lol/v2';
         
         // Calculate distance between two points (haversine formula)
         function getDistance(lat1, lon1, lat2, lon2) {
@@ -392,21 +388,13 @@
             return dirs[Math.round(heading / 45) % 8];
         }
         
-        // Fetch data from ADS-B Exchange
+        // Fetch data from adsb.lol (free public API, no CORS issues)
         async function fetchJets() {
             if (isDemoMode) return getDemoData();
             
             try {
-                // ADS-B Exchange uses tile-based data - we'll fetch the Bay Area tiles
-                // Tile format: https://globe.adsbexchange.com/data/aircraft.json
-                // For specific area, they use lat/lon bounding
-                
-                const response = await fetch(`${ADSB_BASE}/data/aircraft.json`, {
-                    mode: 'cors',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
+                // Fetch from Bay Area center point with 50nm radius (covers SFO, SJC, OAK)
+                const response = await fetch(`${ADSB_API}/lat/37.55/lon/-122.2/dist/50`);
                 
                 if (!response.ok) throw new Error('Network response was not ok');
                 
@@ -415,20 +403,6 @@
                 
             } catch (error) {
                 console.error('Fetch error:', error);
-                
-                // Try alternative endpoint
-                try {
-                    // Tile-based approach for Bay Area (roughly lat 37, lon -122)
-                    const tileUrl = `${ADSB_BASE}/data/globe_3777.json`;
-                    const response = await fetch(tileUrl, { mode: 'cors' });
-                    if (response.ok) {
-                        const data = await response.json();
-                        return processAircraftData(data);
-                    }
-                } catch (e) {
-                    console.error('Alternative fetch failed:', e);
-                }
-                
                 throw error;
             }
         }
