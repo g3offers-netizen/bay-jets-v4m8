@@ -120,14 +120,60 @@
             color: #aaa;
             font-size: 14px;
             margin-bottom: 12px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
         .jet-owner.unknown { color: #666; font-style: italic; }
-        .jet-owner.verified { color: #ffe66d; font-weight: 500; }
-        .jet-owner .principal { color: #fff; font-weight: 600; }
-        .jet-owner .title { color: #888; font-size: 12px; display: block; margin-top: 2px; }
+        .jet-owner.verified { 
+            background: linear-gradient(135deg, #ffe66d11, #00d4aa11);
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #ffe66d;
+            margin-bottom: 15px;
+        }
+        .jet-owner .principal { 
+            color: #fff; 
+            font-weight: 700; 
+            font-size: 16px;
+            display: block;
+        }
+        .jet-owner .title { 
+            color: #00d4aa; 
+            font-size: 12px; 
+            display: block; 
+            margin-top: 4px; 
+        }
+        .jet-owner .profile-snippet {
+            color: #888;
+            font-size: 11px;
+            margin-top: 6px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .jet-owner .likely-flying {
+            background: linear-gradient(135deg, #ff6b6b22, #ffe66d22);
+            color: #ffe66d;
+            font-size: 12px;
+            margin-top: 8px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            line-height: 1.4;
+            border-left: 3px solid #ff6b6b;
+        }
+        .jet-owner .likely-flying strong {
+            color: #fff;
+        }
+        .jet-owner .confidence-badge {
+            display: inline-block;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-top: 6px;
+        }
+        .jet-owner .confidence-badge.high { background: #00d4aa33; color: #00d4aa; }
+        .jet-owner .confidence-badge.medium { background: #ffe66d33; color: #ffe66d; }
+        .jet-owner .confidence-badge.low { background: #ff6b6b33; color: #ff6b6b; }
         
         .jet-stats {
             display: grid;
@@ -527,10 +573,22 @@
             
             container.innerHTML = filteredJets.map(jet => {
                 const ownerInfo = ownersData[jet.tail] || null;
-                const ownerDisplay = ownerInfo 
-                    ? `<span class="principal">${ownerInfo.principal}</span><span class="title">${ownerInfo.title}</span>`
-                    : (jet.owner || 'Owner unknown');
-                const ownerClass = ownerInfo?.verified ? 'verified' : (jet.owner || ownerInfo ? '' : 'unknown');
+                let ownerDisplay, ownerClass;
+                
+                if (ownerInfo) {
+                    const confidenceClass = ownerInfo.confidence || 'low';
+                    const likelyFlying = ownerInfo.likelyPassenger ? ownerInfo.likelyPassenger.substring(0, 120) + (ownerInfo.likelyPassenger.length > 120 ? '...' : '') : '';
+                    ownerDisplay = `
+                        <span class="principal">${ownerInfo.principal}</span>
+                        <span class="title">${ownerInfo.title}</span>
+                        ${likelyFlying ? `<div class="likely-flying">✈️ <strong>Likely Flying:</strong> ${likelyFlying}</div>` : ''}
+                        <span class="confidence-badge ${confidenceClass}">${ownerInfo.verified ? '✓ Verified' : confidenceClass.toUpperCase()}</span>
+                    `;
+                    ownerClass = ownerInfo.verified ? 'verified' : '';
+                } else {
+                    ownerDisplay = jet.owner || 'Owner unknown';
+                    ownerClass = jet.owner ? '' : 'unknown';
+                }
                 
                 return `
                 <div class="jet-card ${jet.isLadd ? 'ladd' : ''}" onclick="showDetails('${jet.hex}')">
@@ -602,8 +660,14 @@
                         <span class="detail-label">Confidence</span>
                         <span class="detail-value">${confidenceEmoji} ${ownerInfo.confidence}</span>
                     </div>
+                    ${ownerInfo.likelyPassenger ? `
+                    <div style="background: linear-gradient(135deg, #ff6b6b22, #ffe66d22); padding: 12px; border-radius: 8px; margin-top: 12px; border-left: 3px solid #ff6b6b;">
+                        <div style="color: #fff; font-weight: bold; margin-bottom: 6px;">✈️ Likely Flying:</div>
+                        <div style="color: #ffe66d; font-size: 13px; line-height: 1.5;">${ownerInfo.likelyPassenger}</div>
+                    </div>
+                    ` : ''}
                     ${ownerInfo.notes ? `<div style="color: #888; font-size: 12px; margin-top: 10px; font-style: italic;">📝 ${ownerInfo.notes}</div>` : ''}
-                    <div style="color: #666; font-size: 11px; margin-top: 8px;">Source: ${ownerInfo.source}</div>
+                    <div style="color: #666; font-size: 11px; margin-top: 8px;">Source: ${ownerInfo.sources ? ownerInfo.sources.join(', ') : 'FAA Registry'}</div>
                 </div>
                 `;
             }
