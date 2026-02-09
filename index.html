@@ -125,6 +125,9 @@
             text-overflow: ellipsis;
         }
         .jet-owner.unknown { color: #666; font-style: italic; }
+        .jet-owner.verified { color: #ffe66d; font-weight: 500; }
+        .jet-owner .principal { color: #fff; font-weight: 600; }
+        .jet-owner .title { color: #888; font-size: 12px; display: block; margin-top: 2px; }
         
         .jet-stats {
             display: grid;
@@ -349,11 +352,13 @@
         
         let currentFilter = 'all';
         let trackedJets = [];
+        let ownersData = {};
         let refreshInterval = null;
         let isDemoMode = false;
         
         // Data is fetched by GitHub Actions and stored locally (no CORS issues)
         const DATA_URL = 'data.json';
+        const OWNERS_URL = 'owners.json';
         
         // Calculate distance between two points (haversine formula)
         function getDistance(lat1, lon1, lat2, lon2) {
@@ -388,11 +393,27 @@
             return dirs[Math.round(heading / 45) % 8];
         }
         
+        // Fetch owners data
+        async function fetchOwners() {
+            try {
+                const response = await fetch(`${OWNERS_URL}?t=${Date.now()}`);
+                if (response.ok) {
+                    ownersData = await response.json();
+                }
+            } catch (error) {
+                console.log('Owners data not available:', error);
+                ownersData = {};
+            }
+        }
+        
         // Fetch data from local JSON (updated by GitHub Actions every minute)
         async function fetchJets() {
             if (isDemoMode) return getDemoData();
             
             try {
+                // Fetch owners data in parallel
+                await fetchOwners();
+                
                 // Add cache-busting to get fresh data
                 const response = await fetch(`${DATA_URL}?t=${Date.now()}`);
                 
@@ -504,14 +525,21 @@
             // Sort by altitude descending (airborne first)
             filteredJets.sort((a, b) => b.altitude - a.altitude);
             
-            container.innerHTML = filteredJets.map(jet => `
+            container.innerHTML = filteredJets.map(jet => {
+                const ownerInfo = ownersData[jet.tail] || null;
+                const ownerDisplay = ownerInfo 
+                    ? `<span class="principal">${ownerInfo.principal}</span><span class="title">${ownerInfo.title}</span>`
+                    : (jet.owner || 'Owner unknown');
+                const ownerClass = ownerInfo?.verified ? 'verified' : (jet.owner || ownerInfo ? '' : 'unknown');
+                
+                return `
                 <div class="jet-card ${jet.isLadd ? 'ladd' : ''}" onclick="showDetails('${jet.hex}')">
                     <div class="jet-header">
                         <span class="tail-number">${jet.tail}</span>
                         <span class="aircraft-type">${jet.type}</span>
                     </div>
-                    <div class="jet-owner ${jet.owner ? '' : 'unknown'}">
-                        ${jet.owner || 'Owner unknown'}
+                    <div class="jet-owner ${ownerClass}">
+                        ${ownerDisplay}
                     </div>
                     <div class="jet-stats">
                         <div class="stat">
@@ -540,7 +568,7 @@
                         <a href="https://globe.adsbexchange.com/?icao=${jet.hex}" target="_blank" onclick="event.stopPropagation()">🗺️ Track</a>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
         
         // Show aircraft details modal
@@ -550,6 +578,35 @@
             
             const modal = document.getElementById('modal');
             const content = document.getElementById('modalContent');
+            const ownerInfo = ownersData[jet.tail] || null;
+            
+            let ownershipSection = '';
+            if (ownerInfo) {
+                const confidenceEmoji = ownerInfo.confidence === 'high' ? '✅' : (ownerInfo.confidence === 'medium' ? '🔶' : '❓');
+                ownershipSection = `
+                <div style="background: #1a1a2e; border-radius: 8px; padding: 15px; margin: 15px 0; border-left: 3px solid ${ownerInfo.verified ? '#ffe66d' : '#666'};">
+                    <h4 style="color: #00d4aa; margin: 0 0 10px 0;">🔍 Ownership Research</h4>
+                    <div class="detail-row">
+                        <span class="detail-label">Principal</span>
+                        <span class="detail-value" style="color: ${ownerInfo.verified ? '#ffe66d' : '#fff'}">${ownerInfo.principal}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Title/Company</span>
+                        <span class="detail-value">${ownerInfo.title}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">FAA Registered</span>
+                        <span class="detail-value">${ownerInfo.registered}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Confidence</span>
+                        <span class="detail-value">${confidenceEmoji} ${ownerInfo.confidence}</span>
+                    </div>
+                    ${ownerInfo.notes ? `<div style="color: #888; font-size: 12px; margin-top: 10px; font-style: italic;">📝 ${ownerInfo.notes}</div>` : ''}
+                    <div style="color: #666; font-size: 11px; margin-top: 8px;">Source: ${ownerInfo.source}</div>
+                </div>
+                `;
+            }
             
             content.innerHTML = `
                 <h2>✈️ ${jet.tail}</h2>
@@ -559,8 +616,12 @@
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Registered Owner</span>
-                    <span class="detail-value">${jet.owner || 'Unknown'}</span>
+                    <span class="detail-value">${ownerInfo?.registered || jet.owner || 'Unknown'}</span>
                 </div>
+                ${ownerInfo ? `<div class="detail-row">
+                    <span class="detail-label">Principal</span>
+                    <span class="detail-value" style="color: ${ownerInfo.verified ? '#ffe66d' : '#fff'}; font-weight: 600;">${ownerInfo.principal}</span>
+                </div>` : ''}
                 <div class="detail-row">
                     <span class="detail-label">ICAO Hex</span>
                     <span class="detail-value">${jet.hex.toUpperCase()}</span>
@@ -597,6 +658,8 @@
                     <span class="detail-label">Position</span>
                     <span class="detail-value">${jet.lat.toFixed(4)}, ${jet.lon.toFixed(4)}</span>
                 </div>
+                
+                ${ownershipSection}
                 
                 <div class="map-embed">
                     <iframe src="https://globe.adsbexchange.com/?icao=${jet.hex}&zoom=10&hideSidebar&hideButtons" 

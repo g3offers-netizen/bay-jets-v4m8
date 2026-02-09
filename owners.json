@@ -1,0 +1,263 @@
+{
+  "N3546": {
+    "registered": "NIKE INC",
+    "principal": "Nike Inc.",
+    "title": "Fortune 500 Athletic Apparel",
+    "notes": "Corporate jet based in Hillsboro, OR. One of two G650ERs in Nike's fleet.",
+    "confidence": "high",
+    "source": "FAA Registry - Direct corporate registration",
+    "verified": true
+  },
+  "N8VB": {
+    "registered": "CBS MASS MEDIA CORP",
+    "principal": "Paramount Global (CBS)",
+    "title": "Media Conglomerate",
+    "notes": "CBS/Paramount corporate Global Express. VB likely refers to Viacom/CBS initials.",
+    "confidence": "high",
+    "source": "FAA Registry - Direct corporate registration",
+    "verified": true
+  },
+  "N824SS": {
+    "registered": "LIBERTY MUTUAL INSURANCE CO",
+    "principal": "Liberty Mutual Insurance",
+    "title": "Fortune 100 Insurance Company",
+    "notes": "Brand new 2024 G650ER. Based in Bedford, MA near company HQ.",
+    "confidence": "high",
+    "source": "FAA Registry - Direct corporate registration",
+    "verified": true
+  },
+  "N107TD": {
+    "registered": "BOPPER AIRWAYS LLC / INDIANAPOLIS COLTS",
+    "principal": "Jim Irsay",
+    "title": "Owner, Indianapolis Colts (NFL)",
+    "notes": "TD = Touchdown. Colts owner Jim Irsay's G-IV. Known for his rock memorabilia collection.",
+    "confidence": "high",
+    "source": "FAA Registry - Street address lists 'INDIANAPOLIS COLTS'",
+    "verified": true
+  },
+  "N539CA": {
+    "registered": "RESMED INC",
+    "principal": "ResMed Inc.",
+    "title": "Medical Device Company",
+    "notes": "Sleep apnea & respiratory device manufacturer. Based in San Diego, CA.",
+    "confidence": "high",
+    "source": "FAA Registry - Direct corporate registration",
+    "verified": true
+  },
+  "N766GD": {
+    "registered": "MESOS ONE LLC",
+    "principal": "Unknown Principal",
+    "title": "Delaware LLC",
+    "notes": "Brand new 2024 Gulfstream G600. Registered via Corporation Trust Company (common Delaware agent). GD suffix likely indicates Gulfstream Aerospace connection.",
+    "confidence": "low",
+    "source": "FAA Registry - Delaware LLC structure hides beneficial owner",
+    "verified": false
+  },
+  "N658FX": {
+    "registered": "SKY CHAIR LLC (c/o FLEXJET LLC)",
+    "principal": "Flexjet Fractional Owners",
+    "title": "Multiple Co-Owners",
+    "notes": "Flexjet fractional G650ER. Co-owners include: Alorica Inc, KCM Capital, Covalent Family Management, RTG Furniture, Peninsula Pacific Entertainment",
+    "confidence": "high",
+    "source": "FAA Registry - Fractional ownership listing",
+    "verified": true
+  },
+  "N721KJ": {
+    "registered": "BANK OF UTAH TRUSTEE",
+    "principal": "Unknown Principal",
+    "title": "Utah Trust Structure",
+    "notes": "G550 registered through Bank of Utah trust. Common structure for privacy.",
+    "confidence": "low",
+    "source": "FAA Registry - Trust structure hides beneficial owner",
+    "verified": false
+  },
+  "N121CL": {
+    "registered": "TVPX AIRCRAFT SOLUTIONS INC TRUSTEE",
+    "principal": "Unknown Principal",
+    "title": "Utah Trust Structure",
+    "notes": "Brand new 2023 Global 7500 (BD-700-2A12). TVPX is a major aircraft trust company.",
+    "confidence": "low",
+    "source": "FAA Registry - Trust structure",
+    "verified": false
+  },
+  "N7508": {
+    "registered": "BANK OF UTAH TRUSTEE",
+    "principal": "Unknown Principal",
+    "title": "Utah Trust Structure",
+    "notes": "2022 Global 7500. Registered via VistaJet charter operator (VJA758 callsign).",
+    "confidence": "low",
+    "source": "FAA Registry - Trust structure",
+    "verified": false
+  },
+  "N378LT": {
+    "registered": "TVPX 2022 MSN 9218 BUSINESS TRUST",
+    "principal": "Unknown Principal",
+    "title": "Utah Trust Structure",
+    "notes": "Global Express. Uses XGN charter callsign.",
+    "confidence": "low",
+    "source": "FAA Registry - Trust structure",
+    "verified": false
+  },
+  "N726BF": {
+    "registered": "WILMINGTON TRUST CO TRUSTEE",
+    "principal": "Unknown Principal",
+    "title": "Delaware Trust Structure",
+    "notes": "2007 Global Express registered through Wilmington Trust.",
+    "confidence": "low",
+    "source": "FAA Registry - Trust structure",
+    "verified": false
+  },
+  "N805CC": {
+    "registered": "CCC 100 AVIATION LLC",
+    "principal": "Unknown Principal",
+    "title": "Delaware LLC",
+    "notes": "2021 Dassault Falcon 7X. Registered in Wilmington, DE.",
+    "confidence": "low",
+    "source": "FAA Registry - LLC structure",
+    "verified": false
+  },
+  "N29HG": {
+    "registered": "TRACTOR & EQUIPMENT CO",
+    "principal": "Tractor & Equipment Co.",
+    "title": "Heavy Equipment Dealer",
+    "notes": "Washington State heavy equipment company owns this 2019 Challenger 350.",
+    "confidence": "high",
+    "source": "FAA Registry - Direct corporate registration",
+    "verified": true
+  },
+  "N90LE": {
+    "registered": "ESTEIN AVIATION LLC",
+    "principal": "Unknown Principal",
+    "title": "Orlando LLC",
+    "notes": "Brand new December 2025 Global Express! Fresh off the line.",
+    "confidence": "low",
+    "source": "FAA Registry - LLC structure",
+    "verified": false
+  },
+  "N622D": {
+    "registered": "DANFORTH LLC",
+    "principal": "Unknown Principal",
+    "title": "Ohio LLC",
+    "notes": "2020 Challenger 650. Columbus, OH based.",
+    "confidence": "low",
+    "source": "FAA Registry - LLC structure",
+    "verified": false
+  },
+  "N874C": {
+    "registered": "TRANS-EXEC AIR SERVICE INC",
+    "principal": "Trans-Exec Air Service",
+    "title": "Charter Operator",
+    "notes": "Van Nuys based charter company. 1993 G-IV available for charter.",
+    "confidence": "high",
+    "source": "FAA Registry - Charter company",
+    "verified": true
+  },
+  "N137WS": {
+    "registered": "CF AVIATION TRUST LLC TRUSTEE",
+    "principal": "Unknown Principal",
+    "title": "Delaware Trust",
+    "notes": "1997 G-IV. Delaware trust structure.",
+    "confidence": "low",
+    "source": "FAA Registry - Trust structure",
+    "verified": false
+  },
+  "N152QS": {
+    "registered": "PRIVATE",
+    "principal": "NetJets Fractional Owner",
+    "title": "Privacy Protected",
+    "notes": "Fractional Global Express. Owner requested privacy under Title 49 USC Section 44114.",
+    "confidence": "medium",
+    "source": "FAA Registry - Privacy protection invoked",
+    "verified": false
+  },
+  "N214WT": {
+    "registered": "BANK OF UTAH TRUSTEE",
+    "principal": "Unknown Principal",
+    "title": "Utah Trust Structure",
+    "notes": "1997 Citation X. Trust structure.",
+    "confidence": "low",
+    "source": "FAA Registry - Trust structure",
+    "verified": false
+  },
+  "N200JW": {
+    "registered": "N200JW LLC",
+    "principal": "Unknown Principal",
+    "title": "Oregon LLC",
+    "notes": "Falcon 2000. Woodburn, OR based LLC.",
+    "confidence": "low",
+    "source": "FAA Registry - LLC structure",
+    "verified": false
+  },
+  "N25VR": {
+    "registered": "N25VR LLC",
+    "principal": "Unknown Principal",
+    "title": "Oregon LLC",
+    "notes": "Falcon 2000. Portland, OR based LLC.",
+    "confidence": "low",
+    "source": "FAA Registry - LLC structure",
+    "verified": false
+  },
+  "N12JS": {
+    "registered": "JS AIRCRAFT LEASING III LLC",
+    "principal": "Unknown Principal",
+    "title": "Florida LLC",
+    "notes": "Learjet 45. Aventura, FL based leasing company.",
+    "confidence": "low",
+    "source": "FAA Registry - Leasing company",
+    "verified": false
+  },
+  "N702SS": {
+    "registered": "N702SS LLC",
+    "principal": "Unknown Principal",
+    "title": "Nevada LLC",
+    "notes": "Hawker 900XP. Las Vegas based LLC.",
+    "confidence": "low",
+    "source": "FAA Registry - LLC structure",
+    "verified": false
+  },
+  "N872HL": {
+    "registered": "HL AIRCRAFT LLC",
+    "principal": "Unknown Principal",
+    "title": "Oklahoma LLC",
+    "notes": "2021 Challenger 300. Oklahoma City based.",
+    "confidence": "low",
+    "source": "FAA Registry - LLC structure",
+    "verified": false
+  },
+  "N723HC": {
+    "registered": "PONDEROSA FINANCIAL SERVICES LLC",
+    "principal": "Ponderosa Financial Services",
+    "title": "Charter/Management Company",
+    "notes": "Learjet 60. Salem, OR based - likely charter operator.",
+    "confidence": "medium",
+    "source": "FAA Registry - Financial services company",
+    "verified": false
+  },
+  "N90XR": {
+    "registered": "INTERNATIONAL AVIATION TECHNICAL SERVICES INC",
+    "principal": "IATS",
+    "title": "Aviation Services Company",
+    "notes": "Learjet 45. Torrance, CA based aviation technical services.",
+    "confidence": "high",
+    "source": "FAA Registry - Direct corporate registration",
+    "verified": true
+  },
+  "N511CJ": {
+    "registered": "GERRY AVIATION LLC",
+    "principal": "Unknown Principal",
+    "title": "Wisconsin LLC",
+    "notes": "Hawker 850XP. Madison, WI based.",
+    "confidence": "low",
+    "source": "FAA Registry - LLC structure",
+    "verified": false
+  },
+  "N530JW": {
+    "registered": "BANK OF UTAH TRUSTEE",
+    "principal": "Unknown Principal",
+    "title": "Utah Trust Structure",
+    "notes": "Challenger 850. Uses SIS (Sissy?) corporate callsign.",
+    "confidence": "low",
+    "source": "FAA Registry - Trust structure",
+    "verified": false
+  }
+}
