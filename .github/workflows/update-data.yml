@@ -1,0 +1,27 @@
+name: Update Aircraft Data
+
+on:
+  schedule:
+    - cron: '* * * * *'  # Every minute
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Fetch aircraft data
+        run: |
+          curl -s "https://api.adsb.lol/v2/lat/37.55/lon/-122.2/dist/50" > data.json
+          echo "Fetched $(cat data.json | jq '.ac | length') aircraft"
+      
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git diff --staged --quiet || git commit -m "Update aircraft data $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push

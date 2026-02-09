@@ -323,7 +323,7 @@
     </div>
     
     <footer>
-        <p>Data from <a href="https://adsb.lol" target="_blank">adsb.lol</a> • 
+        <p>Data from <a href="https://adsb.lol" target="_blank">adsb.lol</a> (updates every minute) • 
            Updates every 30 seconds • 
            <a href="https://github.com/g3offers-netizen/bay-jets" target="_blank">GitHub</a></p>
     </footer>
@@ -352,8 +352,8 @@
         let refreshInterval = null;
         let isDemoMode = false;
         
-        // adsb.lol API (free, no CORS issues, no API key needed)
-        const ADSB_API = 'https://api.adsb.lol/v2';
+        // Data is fetched by GitHub Actions and stored locally (no CORS issues)
+        const DATA_URL = 'data.json';
         
         // Calculate distance between two points (haversine formula)
         function getDistance(lat1, lon1, lat2, lon2) {
@@ -388,13 +388,13 @@
             return dirs[Math.round(heading / 45) % 8];
         }
         
-        // Fetch data from adsb.lol (free public API, no CORS issues)
+        // Fetch data from local JSON (updated by GitHub Actions every minute)
         async function fetchJets() {
             if (isDemoMode) return getDemoData();
             
             try {
-                // Fetch from Bay Area center point with 50nm radius (covers SFO, SJC, OAK)
-                const response = await fetch(`${ADSB_API}/lat/37.55/lon/-122.2/dist/50`);
+                // Add cache-busting to get fresh data
+                const response = await fetch(`${DATA_URL}?t=${Date.now()}`);
                 
                 if (!response.ok) throw new Error('Network response was not ok');
                 
